@@ -31,6 +31,10 @@ public class StudentServiceTest {
     @Autowired
     private GradeService gradeService;
 
+    private int studentId;
+    private int teacherId;
+    private int gradeId;
+
     @BeforeTransaction
     @Before
     public void someDataInit() {
@@ -41,34 +45,39 @@ public class StudentServiceTest {
         student.setBirthday(now);
         student.setDeletedAt(now);
         student.setName("student");
-        students.add(studentService.save(student));
+        student = studentService.save(student);
+        students.add(student);
 
         Teacher teacher = new Teacher();
         teacher.setName("teacher");
         teacher.setBirthday(now);
         teacher.setDeletedAt(now);
         teacher.setStudents(students);
-        teacherService.save(teacher);
+        teacher = teacherService.save(teacher);
 
         Grade grade = new Grade();
         grade.setDeletedAt(now);
         grade.setNum(5);
         grade.setStudents(students);
-        gradeService.save(grade);
+        grade = gradeService.save(grade);
+
+        studentId = student.getId();
+        teacherId = teacher.getId();
+        gradeId = grade.getId();
     }
 
     @Test
     @Transactional
     public void delete() throws Exception {
         deleteOne();
-        Teacher teacher = teacherService.findOne(1);
+        Teacher teacher = teacherService.findOne(teacherId);
         Student student = teacher.getStudents().get(0);
         student.getDeletedAt().after(new Timestamp(0));
     }
 
     @Transactional
     private void deleteOne() {
-        Student student = studentService.findOne(1);
+        Student student = studentService.findOne(studentId);
         studentService.delete(student.getId());
     }
 }
